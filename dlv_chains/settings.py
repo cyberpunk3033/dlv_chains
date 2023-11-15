@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'encrypted_model_fields',
     'apps.user',
     'apps.delivery',
+    'import_export',
 ]
 
 
