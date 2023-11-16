@@ -3,48 +3,39 @@ from abc import ABC, abstractmethod
 
 #region BASE FUNCTIONS AND CLASSES
 
-class ModelsTemplate(models.Model):
-    @abstractmethod
-    def __str__(self):
-        pass
-
-    class Meta:
-        abstract = True
-
 #endregion
 
-
-
-
-# Create your models here.
 #region ДОСТАВКА
-class TypeDelivery(ModelsTemplate): # Тип доставки - морская и тд
+class TypeDelivery(models.Model): # Тип доставки - морская и тд
 
-    name_delivery=models.CharField(verbose_name='Тип доставки',max_length=50, help_text='')
-
+    name_delivery=models.CharField(verbose_name='Тип доставки',max_length=50)
+    code_delivery = models.CharField(verbose_name='Код доставки', max_length=50, help_text='',default="LS")
+    duty=models.FloatField(verbose_name='Гос. пошлина у.е.',default=300)
     def __str__(self):
         return self.name_delivery
 
+    class Meta:
+        verbose_name = 'Варианты доставки'
+        verbose_name_plural = 'Варианты доставки'
 
-class AllDeliveryTypeWeight(ModelsTemplate): # Вес с коэффициентами
-    DELIVERY_CODE = (
-        ('LS', 'LS'),
-        ('LT', 'LT'),
-        ('LR', 'LR'),
-        ('LA', 'LA'),
-    )
-    id_name_delivery=models.ForeignKey(TypeDelivery, on_delete=models.CASCADE)
-    code_delivery=models.CharField(verbose_name='Код',max_length=3, choices=DELIVERY_CODE)
-    weight=models.FloatField(verbose_name='Вес')
-    ratio=models.FloatField(verbose_name='Коэффициент')
 
+class DeliveryRate(models.Model):
+    type_delivery = models.ForeignKey(TypeDelivery, on_delete=models.CASCADE)
+    weight = models.FloatField(verbose_name='Вес тон.',default=0)
+    rate = models.FloatField(verbose_name='Коэффициент',default=0)
+    price = models.FloatField(verbose_name='Стоимость',default=0)
+
+    class Meta:
+        verbose_name = 'Стоимость доставки'
+        verbose_name_plural = 'Стоимость доставки'
+
+    def str(self):
+        return f'{self.type_delivery}' #TODO: Исправить отображение в общем списке
 #endregion
-
-
 
 #region ЦЕПИ
 
-class BaseChain(ModelsTemplate):
+class BaseChain(models.Model):
     GOST_ISO_DIN = (
         ('MGOST', 'M ГОСТ 588-81'),
           ('MISO1977','M ISO 1977'),
@@ -57,12 +48,13 @@ class BaseChain(ModelsTemplate):
           ('ZCDIN','ZC DIN'),
     )
     name_chains = models.CharField(verbose_name='Название цепи', max_length=50, help_text='')
-    gost_iso_din=models.CharField(verbose_name='Стандарт', max_length=13,choices=GOST_ISO_DIN)
+    standard=models.CharField(verbose_name='Стандарт', max_length=13, choices=GOST_ISO_DIN)
     weight=models.FloatField(verbose_name='Вес',null=True)
     rate=models.FloatField(verbose_name='Коэффициент')
 
 
     class Meta:
+
         verbose_name="Базовая цепь"
         verbose_name_plural="Базовые цепи"
 
@@ -81,7 +73,7 @@ class OtherVariant(models.Model):
         ('ZN', 'оцинковка(ZN)'),
         ('NP', 'никелирование(NP)'),
         ('DR', 'горячая оцинковка(DR)'),
-        ('GM', 'геомет(GM)'),
+        ('GM', 'покрытие цепи геомет(GM)'),
         ('SS', 'нержавейка(SS)'),
 
     )
@@ -94,6 +86,9 @@ class OtherVariant(models.Model):
 
     def __str__(self):
         return f' {self.brand}-{self.type_processing}-{self.km_field}-{self.days}-{self.margin}'
+    class Meta:
+        verbose_name='Дополнительные варианты обработки'
+        verbose_name_plural='Дополнительные варианты обработки'
 
 
 #endregion
