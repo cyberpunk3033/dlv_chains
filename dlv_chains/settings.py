@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.delivery',
     'import_export',
+
 ]
 
 

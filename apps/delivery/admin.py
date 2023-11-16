@@ -32,8 +32,7 @@ def imp_exp_model_data(models_:tuple):
 # endregion
 
 # !!! tuple models for import and export in admin site panel
-tuple_models_imp_exp=(BaseChain,BrandChain,OtherVariant,DeliveryRate
-                      )
+tuple_models_imp_exp=(BaseChain,BrandChain,OtherVariant,DeliveryRate)
 
 imp_exp_model_data(tuple_models_imp_exp)
 
@@ -42,7 +41,5 @@ tuple_models_adm_pnl=(Calculation,
                       PriceDelivery,DeliveryLSKTSTP,TypeDelivery)
 
 views_admin_panel(tuple_models_adm_pnl)
-
-
 
 

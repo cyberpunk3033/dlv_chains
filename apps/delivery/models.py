@@ -6,20 +6,24 @@ from abc import ABC, abstractmethod
 #endregion
 
 #region ДОСТАВКА
-class TypeDelivery(models.Model): # Тип доставки - морская и тд
-
+class TypeDelivery(models.Model):
+    """
+       Типы доставки
+    """
     name_delivery=models.CharField(verbose_name='Тип доставки',max_length=50)
     code_delivery = models.CharField(verbose_name='Код доставки', max_length=50, help_text='',default="LS")
     duty=models.FloatField(verbose_name='Гос. пошлина у.е.',default=300)
     def __str__(self):
         return self.name_delivery
-
     class Meta:
         verbose_name = 'Варианты доставки'
         verbose_name_plural = 'Варианты доставки'
 
-
 class DeliveryRate(models.Model):
+    """
+    Коэффициенты и цена в зависимости
+    от веса и типа доставки
+    """
     type_delivery = models.ForeignKey(TypeDelivery, on_delete=models.CASCADE)
     weight = models.FloatField(verbose_name='Вес тон.',default=0)
     rate = models.FloatField(verbose_name='Коэффициент',default=0)
@@ -28,14 +32,16 @@ class DeliveryRate(models.Model):
     class Meta:
         verbose_name = 'Стоимость доставки'
         verbose_name_plural = 'Стоимость доставки'
-
     def str(self):
         return f'{self.type_delivery}' #TODO: Исправить отображение в общем списке
 #endregion
 
-#region ЦЕПИ
+#region БАЗОВЫЕ ЦЕПИ
 
 class BaseChain(models.Model):
+    """
+     Базовые цепи
+     """
     GOST_ISO_DIN = (
         ('MGOST', 'M ГОСТ 588-81'),
           ('MISO1977','M ISO 1977'),
@@ -51,22 +57,33 @@ class BaseChain(models.Model):
     standard=models.CharField(verbose_name='Стандарт', max_length=13, choices=GOST_ISO_DIN)
     weight=models.FloatField(verbose_name='Вес',null=True)
     rate=models.FloatField(verbose_name='Коэффициент')
-
-
     class Meta:
-
         verbose_name="Базовая цепь"
         verbose_name_plural="Базовые цепи"
-
     def __str__(self):
         return self.name_chains
 
+
+# endregion
+
+#region БРЭНД ЦЕПИ И ВАРИАНТЫ ОБРАБОТКИ
 class BrandChain(models.Model):
-    name_brand=models.CharField(verbose_name='Брэнд цепи', max_length=50, help_text='')
+    """
+     БРЭНД ЦЕПИ
+     """
+    name_brand=models.CharField(verbose_name='Брэнд', max_length=50, help_text='')
+    class Meta:
+
+        verbose_name="Брэнд цепи"
+        verbose_name_plural="Брэнд цепи"
     def __str__(self):
         return self.name_brand
 
+
 class OtherVariant(models.Model):
+    """
+     ВАРИАНТЫ ОБРАБОТКИ ЦЕПИ
+     """
     TYPE_OF_PROCESSING=(
 
         ('NOP', 'без обработки'),
@@ -89,19 +106,40 @@ class OtherVariant(models.Model):
     class Meta:
         verbose_name='Дополнительные варианты обработки'
         verbose_name_plural='Дополнительные варианты обработки'
-
-
 #endregion
 
+
+
+class Base_clck(ABC):
+     # указываем метакласс для базового класса
+    name = models.CharField(max_length=100)
+    note = models.TextField()
+    def __str__(self):
+        return self.name
+    class Meta:
+        abstract=True
+
+class Client(models.Model, Base_clck): # наследуем от модели и базового класса
+    # поля для клиента
+
+    unp = models.CharField(max_length=100)  # имя клиента
+    email = models.EmailField() # электронная почта клиента
+    phone = models.CharField(max_length=20) # телефон клиента
+    address = models.TextField() # адрес клиента
+
+class Contact(models.Model, Base_clck): # наследуем от модели и базового класса
+    # поля для контакта клиента
+
+    client = models.ForeignKey(Client, on_delete=models.CASCADE) # ссылка на клиента
+    role = models.CharField(max_length=50)
+    email = models.EmailField() # электронная почта контакта
+    phone = models.CharField(max_length=20) # телефон контакта
+
+
 class Calculation(models.Model):
-    pass
-
-class PriceDelivery(models.Model):
-    pass
-
-class DeliveryLSKTSTP(models.Model):
-    pass
-
+    """
+        РАСЧЕТЫ ДОСТАВКИ
+        """
 
 
 
